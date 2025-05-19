@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日式老虎機 - 吉宗777風格</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #240019;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-image: radial-gradient(#4a0033, #240019);
+            height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ff9900;
+            font-size: 36px;
+            margin: 0;
+        }
+        .slot-machine {
+            background-color: #600040;
+            border: 8px solid #8a0051;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.5);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        /* 動畫顯示區域 */
+        .animation-display {
+            background-color: #000;
+            border: 5px solid #ffcc00;
+            border-radius: 8px;
+            height: 180px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .animation-scene {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: url('/api/placeholder/760/180');
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .animation-character {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 100px;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        .animation-text {
+            position: absolute;
+            top: 20px;
+            font-size: 24px;
+            width: 100%;
+            text-align: center;
+            color: #ffcc00;
+            text-shadow: 2px 2px 4px #000;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .reels {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .reel {
+            background-color: #fff;
+            width: 100px;
+            height: 250px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 3px solid #ffcc00;
+            position: relative;
+        }
+        .reel-container {
+            position: absolute;
+            width: 100%;
+            transition: top 3s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        .symbol {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            background-color: #fff;
+            color: #333;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .btn {
+            background-color: #ffcc00;
+            color: #600040;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 0 10px;
+            box-shadow: 0 4px 0 #cc9900;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background-color: #ffdd33;
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #cc9900;
+        }
+        .btn:disabled {
+            background-color: #bbbbbb;
+            color: #666666;
+            cursor: not-allowed;
+            box-shadow: 0 4px 0 #999999;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            background-color: #3a0027;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .stat {
+            font-size: 24px;
+        }
+        .stat span {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        .win-message {
+            font-size: 32px;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ff9900;
+            height: 40px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .symbol-wrapper {
+            position: relative;
+        }
+        .symbol img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+        .paylines {
+            margin-top: 20px;
+            background-color: #3a0027;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: left;
+        }
+        .paylines h3 {
+            color: #ffcc00;
+            margin-top: 0;
+        }
+        .paylines ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .paylines li {
+            margin-bottom: 5px;
+        }
+        .paylines img {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>吉宗777 老虎機</h1>
+        </div>
+        
+        <div class="slot-machine">
+            <!-- 新增動畫顯示區域 -->
+            <div class="animation-display">
+                <div class="animation-scene" id="animation-scene">
+                    <div class="animation-character" id="animation-character"></div>
+                    <div class="animation-text" id="animation-text"></div>
+                </div>
+            </div>
+            
+            <div class="reels">
+                <div class="reel" id="reel1">
+                    <div class="reel-container" id="reel1-container"></div>
+                </div>
+                <div class="reel" id="reel2">
+                    <div class="reel-container" id="reel2-container"></div>
+                </div>
+                <div class="reel" id="reel3">
+                    <div class="reel-container" id="reel3-container"></div>
+                </div>
+            </div>
+            
+            <div class="win-message" id="win-message"></div>
+            
+            <div class="controls">
+                <button class="btn" id="spin-btn">旋轉 (50 金幣)</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">金幣: <span id="coins">1000</span></div>
+            <div class="stat">贏得: <span id="win-amount">0</span></div>
+        </div>
+        
+        <div class="paylines">
+            <h3>獎金表:</h3>
+            <ul>
+                <li>💰💰💰 = 賠率 x10</li>
+                <li>🎎🎎🎎 = 賠率 x5</li>
+                <li>🏯🏯🏯 = 賠率 x8</li>
+                <li>🍜🍜🍜 = 賠率 x3</li>
+                <li>🎴🎴🎴 = 賠率 x4</li>
+                <li>👹👹👹 = 賠率 x20</li>
+                <li>7️⃣7️⃣7️⃣ = 賠率 x50</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 定義符號和它們的賠率
+            const symbols = [
+                { id: 0, symbol: '💰', name: '金錢袋', payout: 10, animation: '金錢滿天飛！' },
+                { id: 1, symbol: '🎎', name: '人偶', payout: 5, animation: '人偶舞！' },
+                { id: 2, symbol: '🏯', name: '城堡', payout: 8, animation: '天守閣的守護者！' },
+                { id: 3, symbol: '🍜', name: '拉麵', payout: 3, animation: '美味拉麵！' },
+                { id: 4, symbol: '🎴', name: '花牌', payout: 4, animation: '花牌對決！' },
+                { id: 5, symbol: '👹', name: '鬼面', payout: 20, animation: '鬼神降臨！' },
+                { id: 6, symbol: '7️⃣', name: '七', payout: 50, animation: '777大獎！' }
+            ];
+
+            // 初始化
+            let coins = 1000;
+            let bet = 50;
+            let isSpinning = false;
+            
+            // 背景場景
+            const scenes = [
+                '日本花園', '神社', '城堡', '鬥技場', '溫泉'
+            ];
+            let currentScene = 0;
+
+            // 更新顯示的金幣數量
+            function updateCoins() {
+                document.getElementById('coins').textContent = coins;
+            }
+
+            // 創建轉輪上的符號
+            function createReels() {
+                const reels = [
+                    document.getElementById('reel1-container'),
+                    document.getElementById('reel2-container'),
+                    document.getElementById('reel3-container')
+                ];
+
+                reels.forEach(reel => {
+                    // 清空轉輪
+                    reel.innerHTML = '';
+                    
+                    // 為每個轉輪添加符號
+                    // 每個轉輪有10個符號, 隨機選擇
+                    for (let i = 0; i < 10; i++) {
+                        const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                        const symbolElement = document.createElement('div');
+                        symbolElement.classList.add('symbol');
+                        symbolElement.textContent = randomSymbol.symbol;
+                        symbolElement.dataset.id = randomSymbol.id;
+                        reel.appendChild(symbolElement);
+                    }
+                });
+            }
+
+            // 旋轉轉輪
+            function spin() {
+                if (isSpinning || coins < bet) return;
+                
+                // 扣除賭注
+                coins -= bet;
+                updateCoins();
+                
+                isSpinning = true;
+                document.getElementById('spin-btn').disabled = true;
+                document.getElementById('win-message').textContent = '';
+                document.getElementById('win-amount').textContent = '0';
+                
+                // 重新生成符號
+                createReels();
+                
+                // 顯示旋轉動畫
+                showAnimation('準備轉動！', '🎰');
+                
+                const reels = [
+                    document.getElementById('reel1-container'),
+                    document.getElementById('reel2-container'),
+                    document.getElementById('reel3-container')
+                ];
+                
+                // 設置每個轉輪的結束位置
+                const positions = [];
+                for (let i = 0; i < 3; i++) {
+                    const position = -Math.floor(Math.random() * 7) * 100; // 隨機位置
+                    positions.push(position);
+                    
+                    setTimeout(() => {
+                        reels[i].style.transition = 'top 3s cubic-bezier(0.17, 0.67, 0.83, 0.67)';
+                        reels[i].style.top = `${position}px`;
+                    }, i * 400); // 轉輪依次開始旋轉
+                }
+                
+                // 旋轉完成後檢查結果
+                setTimeout(() => {
+                    checkWin(positions);
+                    isSpinning = false;
+                    document.getElementById('spin-btn').disabled = false;
+                }, 3000 + 800); // 所有轉輪旋轉完成的時間
+            }
+
+            // 顯示動畫
+            function showAnimation(text, character) {
+                const animationText = document.getElementById('animation-text');
+                const animationCharacter = document.getElementById('animation-character');
+                
+                // 重置動畫
+                animationText.style.opacity = 0;
+                animationCharacter.style.opacity = 0;
+                animationCharacter.style.transform = 'translateX(-50%) translateY(50px)';
+                
+                // 更新內容
+                setTimeout(() => {
+                    animationText.textContent = text;
+                    animationCharacter.textContent = character;
+                    
+                    // 顯示新動畫
+                    animationText.style.opacity = 1;
+                    animationCharacter.style.opacity = 1;
+                    animationCharacter.style.transform = 'translateX(-50%) translateY(0)';
+                }, 300);
+            }
+            
+            // 更換背景場景
+            function changeScene() {
+                currentScene = (currentScene + 1) % scenes.length;
+                const sceneElement = document.getElementById('animation-scene');
+                sceneElement.style.transition = 'opacity 0.5s';
+                sceneElement.style.opacity = 0;
+                
+                setTimeout(() => {
+                    sceneElement.style.backgroundImage = `url('/api/placeholder/760/180')`;
+                    sceneElement.style.opacity = 1;
+                }, 500);
+            }
+            
+            // 檢查贏得情況
+            function checkWin(positions) {
+                const result = [];
+                
+                // 獲取停止位置的符號
+                for (let i = 0; i < 3; i++) {
+                    const reelContainer = document.getElementById(`reel${i+1}-container`);
+                    const symbolIndex = Math.abs(positions[i] / 100);
+                    const symbolElement = reelContainer.children[symbolIndex];
+                    result.push(parseInt(symbolElement.dataset.id));
+                }
+                
+                // 檢查是否有三個相同的符號
+                if (result[0] === result[1] && result[1] === result[2]) {
+                    const winningSymbol = symbols.find(s => s.id === result[0]);
+                    const winAmount = bet * winningSymbol.payout;
+                    
+                    coins += winAmount;
+                    updateCoins();
+                    
+                    document.getElementById('win-message').textContent = `中獎了! ${winningSymbol.symbol} x3`;
+                    document.getElementById('win-amount').textContent = winAmount;
+                    
+                    // 顯示對應的獲勝動畫
+                    showAnimation(winningSymbol.animation, winningSymbol.symbol);
+                    changeScene();
+                    
+                    // 特殊效果
+                    if (winningSymbol.id === 6) { // 777大獎
+                        document.getElementById('win-message').style.fontSize = '42px';
+                        document.getElementById('win-message').style.color = '#ff0000';
+                        setTimeout(() => {
+                            document.getElementById('win-message').style.fontSize = '32px';
+                            document.getElementById('win-message').style.color = '#ffcc00';
+                        }, 2000);
+                        
+                        // 777特殊動畫效果
+                        const animationScene = document.getElementById('animation-scene');
+                        animationScene.style.boxShadow = '0 0 20px #ffcc00 inset';
+                        setTimeout(() => {
+                            animationScene.style.boxShadow = 'none';
+                        }, 3000);
+                    }
+                } else {
+                    // 未中獎
+                    showAnimation('再接再厲！', '😊');
+                }
+            }
+
+            // 初始化
+            createReels();
+            updateCoins();
+            showAnimation('歡迎遊玩吉宗777老虎機！', '🎌');
+            
+            // 綁定按鈕事件
+            document.getElementById('spin-btn').addEventListener('click', spin);
+        });
+    </script>
+</body>
+</html>
